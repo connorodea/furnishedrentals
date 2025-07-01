@@ -95,12 +95,20 @@ export function DashboardOverview() {
         <CardHeader>
           <div className="flex items-center justify-between">
             <CardTitle>Recent Bookings</CardTitle>
-            <Button variant="outline" size="sm" asChild>
-              <Link href="/search">
-                <Plus className="h-4 w-4 mr-2" />
-                New Booking
-              </Link>
-            </Button>
+            <div className="flex gap-2">
+              <Button variant="outline" size="sm" asChild>
+                <Link href="/bookings">
+                  <Calendar className="h-4 w-4 mr-2" />
+                  View All Bookings
+                </Link>
+              </Button>
+              <Button variant="outline" size="sm" asChild>
+                <Link href="/search">
+                  <Plus className="h-4 w-4 mr-2" />
+                  New Booking
+                </Link>
+              </Button>
+            </div>
           </div>
         </CardHeader>
         <CardContent>

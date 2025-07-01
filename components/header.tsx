@@ -3,126 +3,223 @@
 import { useState } from "react"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu"
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Badge } from "@/components/ui/badge"
-import { Search, Menu, Heart, Scale, Bell } from "lucide-react"
-import { useComparison } from "@/contexts/comparison-context"
+import { ComparisonBar } from "@/components/comparison-bar"
+import { Menu, Home, Search, Calendar, User, Settings, LogOut, Plus, MessageCircle, Bell } from "lucide-react"
 
 export function Header() {
-  const [isSearchOpen, setIsSearchOpen] = useState(false)
-  const { comparisonProperties } = useComparison()
+  const [isOpen, setIsOpen] = useState(false)
+
+  // Mock user data - in a real app, this would come from authentication
+  const user = {
+    name: "John Doe",
+    email: "john@example.com",
+    avatar: "/placeholder.svg?height=40&width=40&text=JD",
+    isHost: true,
+  }
+
+  const navigationItems = [
+    { href: "/", label: "Home", icon: Home },
+    { href: "/search", label: "Search", icon: Search },
+    { href: "/bookings", label: "My Bookings", icon: Calendar },
+    { href: "/dashboard", label: "Dashboard", icon: User },
+  ]
+
+  const hostItems = [
+    { href: "/list-property", label: "List Property", icon: Plus },
+    { href: "/dashboard", label: "Host Dashboard", icon: Settings },
+  ]
 
   return (
-    <header className="sticky top-0 z-50 w-full border-b bg-white/95 backdrop-blur supports-[backdrop-filter]:bg-white/60">
-      <div className="container flex h-16 items-center justify-between px-4">
-        {/* Logo */}
-        <Link href="/" className="flex items-center space-x-2">
-          <div className="h-8 w-8 bg-primary rounded-lg flex items-center justify-center">
-            <span className="text-white font-bold text-sm">FR</span>
-          </div>
-          <span className="font-bold text-xl hidden sm:inline-block">FurnishedRentals</span>
-        </Link>
-
-        {/* Desktop Navigation */}
-        <nav className="hidden md:flex items-center space-x-6">
-          <Link href="/search" className="text-gray-600 hover:text-gray-900 transition-colors">
-            Search
+    <>
+      <header className="sticky top-0 z-50 w-full border-b bg-white/95 backdrop-blur supports-[backdrop-filter]:bg-white/60">
+        <div className="container flex h-16 items-center justify-between px-4">
+          {/* Logo */}
+          <Link href="/" className="flex items-center space-x-2">
+            <div className="h-8 w-8 bg-blue-600 rounded-lg flex items-center justify-center">
+              <Home className="h-5 w-5 text-white" />
+            </div>
+            <span className="font-bold text-xl">FurnishedRentals</span>
           </Link>
-          <Link href="/list-property" className="text-gray-600 hover:text-gray-900 transition-colors">
-            List Property
-          </Link>
-          <Link href="/how-it-works" className="text-gray-600 hover:text-gray-900 transition-colors">
-            How It Works
-          </Link>
-          <Link href="/about" className="text-gray-600 hover:text-gray-900 transition-colors">
-            About
-          </Link>
-        </nav>
 
-        {/* Search Bar (Desktop) */}
-        <div className="hidden lg:flex items-center flex-1 max-w-md mx-8">
-          <div className="relative w-full">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
-            <Input placeholder="Search destinations..." className="pl-10 pr-4" onFocus={() => setIsSearchOpen(true)} />
-          </div>
-        </div>
+          {/* Desktop Navigation */}
+          <nav className="hidden md:flex items-center space-x-6">
+            {navigationItems.map((item) => (
+              <Link
+                key={item.href}
+                href={item.href}
+                className="text-sm font-medium text-gray-600 hover:text-gray-900 transition-colors"
+              >
+                {item.label}
+              </Link>
+            ))}
+          </nav>
 
-        {/* Right Side Actions */}
-        <div className="flex items-center space-x-2">
-          {/* Search Button (Mobile) */}
-          <Button variant="ghost" size="icon" className="lg:hidden">
-            <Search className="h-5 w-5" />
-          </Button>
-
-          {/* Comparison Button */}
-          {comparisonProperties.length > 0 && (
-            <Link href="/compare">
-              <Button variant="ghost" size="icon" className="relative">
-                <Scale className="h-5 w-5" />
-                <Badge className="absolute -top-1 -right-1 h-5 w-5 flex items-center justify-center p-0 text-xs">
-                  {comparisonProperties.length}
-                </Badge>
+          {/* Desktop User Menu */}
+          <div className="hidden md:flex items-center space-x-4">
+            {user.isHost && (
+              <Button variant="outline" size="sm" asChild>
+                <Link href="/list-property">
+                  <Plus className="h-4 w-4 mr-2" />
+                  List Property
+                </Link>
               </Button>
-            </Link>
-          )}
+            )}
 
-          {/* Favorites */}
-          <Button variant="ghost" size="icon">
-            <Heart className="h-5 w-5" />
-          </Button>
+            <Button variant="ghost" size="sm" className="relative">
+              <Bell className="h-4 w-4" />
+              <Badge className="absolute -top-1 -right-1 h-5 w-5 flex items-center justify-center p-0 text-xs">3</Badge>
+            </Button>
 
-          {/* Notifications */}
-          <Button variant="ghost" size="icon">
-            <Bell className="h-5 w-5" />
-          </Button>
-
-          {/* User Menu */}
-          <div className="hidden md:flex items-center space-x-2">
-            <Link href="/login">
-              <Button variant="ghost">Log In</Button>
-            </Link>
-            <Link href="/signup">
-              <Button>Sign Up</Button>
-            </Link>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="ghost" className="relative h-10 w-10 rounded-full">
+                  <Avatar className="h-10 w-10">
+                    <AvatarImage src={user.avatar || "/placeholder.svg"} alt={user.name} />
+                    <AvatarFallback>
+                      {user.name
+                        .split(" ")
+                        .map((n) => n[0])
+                        .join("")}
+                    </AvatarFallback>
+                  </Avatar>
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent className="w-56" align="end" forceMount>
+                <div className="flex items-center justify-start gap-2 p-2">
+                  <div className="flex flex-col space-y-1 leading-none">
+                    <p className="font-medium">{user.name}</p>
+                    <p className="w-[200px] truncate text-sm text-muted-foreground">{user.email}</p>
+                  </div>
+                </div>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem asChild>
+                  <Link href="/dashboard">
+                    <User className="mr-2 h-4 w-4" />
+                    Dashboard
+                  </Link>
+                </DropdownMenuItem>
+                <DropdownMenuItem asChild>
+                  <Link href="/bookings">
+                    <Calendar className="mr-2 h-4 w-4" />
+                    My Bookings
+                  </Link>
+                </DropdownMenuItem>
+                <DropdownMenuItem>
+                  <MessageCircle className="mr-2 h-4 w-4" />
+                  Messages
+                </DropdownMenuItem>
+                {user.isHost && (
+                  <>
+                    <DropdownMenuSeparator />
+                    <DropdownMenuItem asChild>
+                      <Link href="/list-property">
+                        <Plus className="mr-2 h-4 w-4" />
+                        List Property
+                      </Link>
+                    </DropdownMenuItem>
+                    <DropdownMenuItem asChild>
+                      <Link href="/dashboard">
+                        <Settings className="mr-2 h-4 w-4" />
+                        Host Dashboard
+                      </Link>
+                    </DropdownMenuItem>
+                  </>
+                )}
+                <DropdownMenuSeparator />
+                <DropdownMenuItem>
+                  <LogOut className="mr-2 h-4 w-4" />
+                  Log out
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
           </div>
 
           {/* Mobile Menu */}
-          <Sheet>
+          <Sheet open={isOpen} onOpenChange={setIsOpen}>
             <SheetTrigger asChild>
-              <Button variant="ghost" size="icon" className="md:hidden">
+              <Button variant="ghost" size="sm" className="md:hidden">
                 <Menu className="h-5 w-5" />
               </Button>
             </SheetTrigger>
             <SheetContent side="right" className="w-80">
-              <div className="flex flex-col space-y-4 mt-8">
-                <Link href="/search" className="text-lg font-medium">
-                  Search Properties
-                </Link>
-                <Link href="/list-property" className="text-lg font-medium">
-                  List Your Property
-                </Link>
-                <Link href="/how-it-works" className="text-lg font-medium">
-                  How It Works
-                </Link>
-                <Link href="/about" className="text-lg font-medium">
-                  About Us
-                </Link>
-                <div className="border-t pt-4 space-y-2">
-                  <Link href="/login">
-                    <Button variant="outline" className="w-full bg-transparent">
-                      Log In
-                    </Button>
-                  </Link>
-                  <Link href="/signup">
-                    <Button className="w-full">Sign Up</Button>
-                  </Link>
+              <div className="flex flex-col space-y-4 mt-4">
+                <div className="flex items-center space-x-2 pb-4 border-b">
+                  <Avatar className="h-10 w-10">
+                    <AvatarImage src={user.avatar || "/placeholder.svg"} alt={user.name} />
+                    <AvatarFallback>
+                      {user.name
+                        .split(" ")
+                        .map((n) => n[0])
+                        .join("")}
+                    </AvatarFallback>
+                  </Avatar>
+                  <div>
+                    <p className="font-medium">{user.name}</p>
+                    <p className="text-sm text-gray-600">{user.email}</p>
+                  </div>
+                </div>
+
+                <nav className="flex flex-col space-y-2">
+                  {navigationItems.map((item) => {
+                    const Icon = item.icon
+                    return (
+                      <Link
+                        key={item.href}
+                        href={item.href}
+                        className="flex items-center space-x-2 text-sm font-medium text-gray-600 hover:text-gray-900 py-2"
+                        onClick={() => setIsOpen(false)}
+                      >
+                        <Icon className="h-4 w-4" />
+                        <span>{item.label}</span>
+                      </Link>
+                    )
+                  })}
+
+                  {user.isHost && (
+                    <>
+                      <div className="border-t pt-2 mt-2">
+                        <p className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">Host Tools</p>
+                        {hostItems.map((item) => {
+                          const Icon = item.icon
+                          return (
+                            <Link
+                              key={item.href}
+                              href={item.href}
+                              className="flex items-center space-x-2 text-sm font-medium text-gray-600 hover:text-gray-900 py-2"
+                              onClick={() => setIsOpen(false)}
+                            >
+                              <Icon className="h-4 w-4" />
+                              <span>{item.label}</span>
+                            </Link>
+                          )
+                        })}
+                      </div>
+                    </>
+                  )}
+                </nav>
+
+                <div className="border-t pt-4 mt-4">
+                  <Button variant="outline" className="w-full justify-start bg-transparent">
+                    <LogOut className="mr-2 h-4 w-4" />
+                    Log out
+                  </Button>
                 </div>
               </div>
             </SheetContent>
           </Sheet>
         </div>
-      </div>
-    </header>
+      </header>
+      <ComparisonBar />
+    </>
   )
 }
