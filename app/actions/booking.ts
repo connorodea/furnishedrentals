@@ -368,3 +368,55 @@ export async function createBooking(data: BookingData) {
   // Redirect to confirmation page
   redirect(`/booking/confirmation/${bookingId}`)
 }
+
+export interface Booking {
+  id: string
+  propertyId: number
+  property: Property
+  checkIn: string
+  checkOut: string
+  guests: number
+  firstName: string
+  lastName: string
+  email: string
+  phone: string
+  specialRequests?: string
+  paymentMethod: string
+  subtotal: number
+  cleaningFee: number
+  serviceFee: number
+  taxes: number
+  total: number
+  status: "confirmed" | "pending" | "cancelled"
+  createdAt: string
+}
+
+export async function getBooking(id: string): Promise<Booking | null> {
+  // Simulate API delay
+  await new Promise((resolve) => setTimeout(resolve, 100))
+
+  // Mock booking data - in a real app, this would come from a database
+  const mockBooking: Booking = {
+    id,
+    propertyId: 1,
+    property: mockProperties[0], // Use the first property as default
+    checkIn: "2024-02-15",
+    checkOut: "2024-03-15",
+    guests: 2,
+    firstName: "John",
+    lastName: "Doe",
+    email: "john.doe@example.com",
+    phone: "+1 (555) 123-4567",
+    specialRequests: "Late check-in requested",
+    paymentMethod: "Credit Card",
+    subtotal: 8400,
+    cleaningFee: 150,
+    serviceFee: 1008,
+    taxes: 764.64,
+    total: 10322.64,
+    status: "confirmed",
+    createdAt: "2024-01-15T10:30:00Z",
+  }
+
+  return mockBooking
+}
